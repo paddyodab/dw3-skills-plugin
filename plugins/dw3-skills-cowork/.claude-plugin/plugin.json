@@ -7,7 +7,7 @@
   },
   "mcpServers": {
     "spice-sql": {
-      "command": "bun",
+      "command": "node",
       "args": ["${CLAUDE_PLUGIN_ROOT}/server/server.js"],
       "env": {
         "SPICE_CLOUD_API_KEY": "${SPICE_CLOUD_API_KEY}"
