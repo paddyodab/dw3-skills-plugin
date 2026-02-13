@@ -1,0 +1,8 @@
+{
+  "name": "dw3-skills",
+  "description": "Domain expert skills powered by SpiceAI hybrid search. Covers cloud architecture (AWS), security compliance (HIPAA/HITRUST/SOC2), QA standards, and UX design (WCAG).",
+  "version": "1.0.0",
+  "author": {
+    "name": "Dustin Warner"
+  }
+}
