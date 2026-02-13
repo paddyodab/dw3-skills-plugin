@@ -1,0 +1,20 @@
+{
+  "name": "dw3-skills-marketplace",
+  "owner": {
+    "name": "Dustin Warner"
+  },
+  "metadata": {
+    "description": "Domain expert skills powered by SpiceAI hybrid search"
+  },
+  "plugins": [
+    {
+      "name": "dw3-skills",
+      "source": "./plugins/dw3-skills",
+      "description": "Cloud architecture (AWS), security compliance (HIPAA/HITRUST/SOC2), QA standards, and UX design (WCAG) expert skills powered by SpiceAI hybrid search.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Dustin Warner"
+      }
+    }
+  ]
+}
