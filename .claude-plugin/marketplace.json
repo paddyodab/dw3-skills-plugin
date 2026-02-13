@@ -10,7 +10,16 @@
     {
       "name": "dw3-skills",
       "source": "./plugins/dw3-skills",
-      "description": "Cloud architecture (AWS), security compliance (HIPAA/HITRUST/SOC2), QA standards, and UX design (WCAG) expert skills powered by SpiceAI hybrid search.",
+      "description": "Domain expert skills for Claude Code. Uses spice CLI directly. Requires spice on PATH and SPICE_CLOUD_API_KEY set.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Dustin Warner"
+      }
+    },
+    {
+      "name": "dw3-skills-cowork",
+      "source": "./plugins/dw3-skills-cowork",
+      "description": "Domain expert skills for Cowork. Uses MCP server to bridge spice CLI from host into the Cowork VM. Requires Bun and SPICE_CLOUD_API_KEY set.",
       "version": "1.0.0",
       "author": {
         "name": "Dustin Warner"

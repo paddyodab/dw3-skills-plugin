@@ -1,0 +1,17 @@
+{
+  "name": "dw3-skills-cowork",
+  "description": "Domain expert skills powered by SpiceAI hybrid search (Cowork edition). Uses MCP server for Spice SQL access from the Cowork VM. Covers cloud architecture (AWS), security compliance (HIPAA/HITRUST/SOC2), QA standards, and UX design (WCAG).",
+  "version": "1.0.0",
+  "author": {
+    "name": "Dustin Warner"
+  },
+  "mcpServers": {
+    "spice-sql": {
+      "command": "bun",
+      "args": ["${CLAUDE_PLUGIN_ROOT}/server/server.js"],
+      "env": {
+        "SPICE_CLOUD_API_KEY": "${SPICE_CLOUD_API_KEY}"
+      }
+    }
+  }
+}
