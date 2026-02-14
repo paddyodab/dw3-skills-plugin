@@ -20745,11 +20745,9 @@ ${stderr || stdout}`
       if (sizeKB > 50) {
         const timestamp = Date.now();
         const filename = `spice-results-${timestamp}.txt`;
-        const outputDir = join(
+        const outputDir = process.env.SPICE_OUTPUT_DIR || join(
           homedir(),
-          "Library",
-          "Application Support",
-          "Claude",
+          "Desktop",
           "spice-results"
         );
         if (!existsSync(outputDir)) {

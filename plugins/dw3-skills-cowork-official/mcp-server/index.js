@@ -108,12 +108,11 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         const timestamp = Date.now();
         const filename = `spice-results-${timestamp}.txt`;
 
-        // Use ~/Library/Application Support/Claude/spice-results/ for persistence
-        const outputDir = join(
+        // Use ~/Desktop/spice-results/ for Claude-accessible persistence
+        // Note: Desktop is accessible to Claude's sandbox, unlike Library paths
+        const outputDir = process.env.SPICE_OUTPUT_DIR || join(
           homedir(),
-          "Library",
-          "Application Support",
-          "Claude",
+          "Desktop",
           "spice-results"
         );
 
