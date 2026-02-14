@@ -1,0 +1,8 @@
+{
+  "name": "dw3-skills-cowork-official",
+  "version": "0.1.0",
+  "description": "Domain expert skills for cloud architecture, security compliance, QA, and UX design powered by SpiceAI hybrid search. Cowork edition with MCP server.",
+  "author": {
+    "name": "Dustin Warner"
+  }
+}
