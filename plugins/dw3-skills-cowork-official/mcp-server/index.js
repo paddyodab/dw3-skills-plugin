@@ -6,8 +6,8 @@ import {
   CallToolRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
 import { spawn } from "child_process";
-import { writeFileSync } from "fs";
-import { tmpdir } from "os";
+import { writeFileSync, mkdirSync, existsSync } from "fs";
+import { homedir } from "os";
 import { join } from "path";
 
 const server = new Server(
@@ -104,10 +104,25 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       const sizeKB = Buffer.byteLength(stdout, "utf8") / 1024;
 
       if (sizeKB > 50) {
-        // Large result: write to temp file
+        // Large result: write to persistent file in Claude-accessible directory
         const timestamp = Date.now();
         const filename = `spice-results-${timestamp}.txt`;
-        const filepath = join(tmpdir(), filename);
+
+        // Use ~/Library/Application Support/Claude/spice-results/ for persistence
+        const outputDir = join(
+          homedir(),
+          "Library",
+          "Application Support",
+          "Claude",
+          "spice-results"
+        );
+
+        // Ensure directory exists
+        if (!existsSync(outputDir)) {
+          mkdirSync(outputDir, { recursive: true });
+        }
+
+        const filepath = join(outputDir, filename);
 
         try {
           writeFileSync(filepath, stdout, "utf8");

@@ -20666,8 +20666,8 @@ var StdioServerTransport = class {
 
 // index.js
 import { spawn } from "child_process";
-import { writeFileSync } from "fs";
-import { tmpdir } from "os";
+import { writeFileSync, mkdirSync, existsSync } from "fs";
+import { homedir } from "os";
 import { join } from "path";
 var server = new Server(
   {
@@ -20745,7 +20745,17 @@ ${stderr || stdout}`
       if (sizeKB > 50) {
         const timestamp = Date.now();
         const filename = `spice-results-${timestamp}.txt`;
-        const filepath = join(tmpdir(), filename);
+        const outputDir = join(
+          homedir(),
+          "Library",
+          "Application Support",
+          "Claude",
+          "spice-results"
+        );
+        if (!existsSync(outputDir)) {
+          mkdirSync(outputDir, { recursive: true });
+        }
+        const filepath = join(outputDir, filename);
         try {
           writeFileSync(filepath, stdout, "utf8");
           const lines = stdout.split("\n").filter((l) => l.trim());
