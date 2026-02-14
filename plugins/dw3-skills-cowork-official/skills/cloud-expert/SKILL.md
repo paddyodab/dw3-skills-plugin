@@ -20,7 +20,9 @@ Activate when the user asks about:
 
 ## How to Query
 
-Use the `spice_sql` tool with hybrid RRF (Reciprocal Rank Fusion) search:
+**CRITICAL:** Always use `LEFT(content, 500)` to truncate content. Never query the full `content` field as it will cause oversized responses.
+
+Use the `spice_sql` tool with this EXACT query structure:
 
 ```sql
 SELECT path, LEFT(content, 500) as content_preview, fused_score
