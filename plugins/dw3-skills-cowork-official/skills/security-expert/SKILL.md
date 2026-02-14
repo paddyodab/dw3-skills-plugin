@@ -23,26 +23,32 @@ Activate when the user asks about:
 Use the `spice_sql` tool with hybrid RRF search:
 
 ```sql
-SELECT path, content, fused_score
+SELECT path, LEFT(content, 500) as content_preview, fused_score
 FROM rrf(
     vector_search(security_spec, '<natural language query>'),
     text_search(security_spec, '<keywords>', content),
     join_key => 'path'
 )
 ORDER BY fused_score DESC
-LIMIT 10;
+LIMIT 5;
 ```
+
+**Query Construction:**
+- `<natural language query>`: Semantic description of security/compliance need
+- `<keywords>`: Space-separated security terms (MFA, HIPAA, encryption, audit, etc.)
+- `LEFT(content, 500)`: Truncates content to first 500 characters for manageable responses
+- `LIMIT 5`: Returns top 5 results for focused synthesis
 
 **Example Query:**
 ```sql
-SELECT path, content, fused_score
+SELECT path, LEFT(content, 500) as content_preview, fused_score
 FROM rrf(
     vector_search(security_spec, 'authentication requirements for healthcare applications'),
     text_search(security_spec, 'authentication MFA password HIPAA session', content),
     join_key => 'path'
 )
 ORDER BY fused_score DESC
-LIMIT 10;
+LIMIT 5;
 ```
 
 ## Workflow
@@ -52,6 +58,36 @@ LIMIT 10;
 3. **Execute search** — Use `spice_sql` with RRF query
 4. **Apply framework context** — Filter results by applicable compliance frameworks
 5. **Cite sources** — Reference specific security spec documents
+
+## How to Synthesize Results
+
+When the `spice_sql` tool returns results:
+
+1. **Parse the tool output** — Extract `path`, `content_preview`, and `fused_score` from each row
+2. **Focus on top 3-5 results** — Prioritize by `fused_score` (higher is better)
+3. **Apply compliance context** — Map results to relevant frameworks (HIPAA, HITRUST, SOC2)
+4. **Extract security controls** — Identify specific requirements, controls, or best practices
+5. **Cite sources** — Reference the `path` field for each control (e.g., "Per `SecuritySpec/authentication/mfa-requirements.md`...")
+6. **Combine with framework standards** — Supplement with HIPAA, HITRUST, or SOC2 baseline requirements
+7. **Handle large responses** — If tool output is too large, focus on the top 3 results only
+
+**Example synthesis:**
+```
+Based on the security_spec dataset and HIPAA requirements:
+
+1. **Multi-factor authentication is mandatory** (SecuritySpec/authentication/mfa-requirements.md)
+   - All user accounts must use MFA (HITRUST CSF 01.m, SOC2 CC6.1)
+   - SMS is not acceptable for PHI access; use authenticator apps or hardware tokens
+
+2. **Audit logging requirements** (SecuritySpec/logging/audit-requirements.md)
+   - Log all authentication events, data access, and configuration changes
+   - HIPAA requires 6-year retention for audit logs involving PHI
+   - CloudWatch Logs with encryption at rest (AES-256)
+
+3. **Data encryption standards** (SecuritySpec/encryption/data-protection.md)
+   - PHI must be encrypted at rest (AES-256) and in transit (TLS 1.2+)
+   - Use AWS KMS for key management with automatic rotation
+```
 
 ## Compliance Context
 
@@ -74,16 +110,34 @@ See `SecuritySpec/USAGE.md` for detailed framework guidance.
 
 ## Fallback Guidance
 
-If `spice_sql` returns no results or errors:
+Handle different error scenarios:
 
-1. **Acknowledge the gap** — "The security_spec dataset doesn't have specific guidance on this topic."
-2. **Apply general security principles**:
-   - **Authentication**: Multi-factor authentication (MFA) required for all systems
-   - **Encryption**: Data at rest (AES-256) and in transit (TLS 1.2+)
-   - **Access Control**: Principle of least privilege, role-based access
-   - **Audit Logging**: Log all authentication events, data access, and configuration changes
-   - **PHI Handling**: HIPAA minimum necessary rule, encryption required
-3. **Recommend next steps** — Update security spec or consult security/compliance team
+**1. No results found:**
+- Acknowledge: "The security_spec dataset doesn't have specific guidance on this topic."
+- Apply general security principles:
+  - **Authentication**: Multi-factor authentication (MFA) required for all systems
+  - **Encryption**: Data at rest (AES-256) and in transit (TLS 1.2+)
+  - **Access Control**: Principle of least privilege, role-based access
+  - **Audit Logging**: Log all authentication events, data access, and configuration changes
+  - **PHI Handling**: HIPAA minimum necessary rule, encryption required
+- Recommend updating security spec or consulting security/compliance team
+
+**2. Results too large to process:**
+- Focus on top 3 results only
+- Acknowledge: "The security_spec dataset has extensive guidance on this topic. Here are the most relevant controls..."
+- Provide synthesis from the highest-scoring results
+- Map to applicable frameworks (HIPAA, HITRUST, SOC2)
+
+**3. Tool timeout or error:**
+- Acknowledge: "Unable to query the security_spec dataset at this time."
+- Provide general security principles based on compliance frameworks
+- Fall back to HIPAA baseline (most stringent) if handling PHI
+- Recommend manual consultation of the SecuritySpec repository
+
+**4. Malformed or unexpected response:**
+- Log the issue for investigation
+- Provide framework-based guidance (HIPAA, HITRUST, SOC2)
+- Recommend manual consultation with security/compliance team
 
 ## Examples
 

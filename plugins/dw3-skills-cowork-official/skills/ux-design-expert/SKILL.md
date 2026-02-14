@@ -24,26 +24,32 @@ Activate when the user asks about:
 Use the `spice_sql` tool with hybrid RRF search:
 
 ```sql
-SELECT path, content, fused_score
+SELECT path, LEFT(content, 500) as content_preview, fused_score
 FROM rrf(
     vector_search(ux_design_spec, '<natural language query>'),
     text_search(ux_design_spec, '<keywords>', content),
     join_key => 'path'
 )
 ORDER BY fused_score DESC
-LIMIT 10;
+LIMIT 5;
 ```
+
+**Query Construction:**
+- `<natural language query>`: Semantic description of UX/accessibility need
+- `<keywords>`: Space-separated UX terms (WCAG, accessibility, ARIA, usability, etc.)
+- `LEFT(content, 500)`: Truncates content to first 500 characters for manageable responses
+- `LIMIT 5`: Returns top 5 results for focused synthesis
 
 **Example Query:**
 ```sql
-SELECT path, content, fused_score
+SELECT path, LEFT(content, 500) as content_preview, fused_score
 FROM rrf(
     vector_search(ux_design_spec, 'accessible form design for screen readers'),
     text_search(ux_design_spec, 'accessibility WCAG form input label ARIA', content),
     join_key => 'path'
 )
 ORDER BY fused_score DESC
-LIMIT 10;
+LIMIT 5;
 ```
 
 ## Workflow
@@ -53,6 +59,38 @@ LIMIT 10;
 3. **Execute search** — Use `spice_sql` with RRF query
 4. **Apply WCAG standards** — Filter by Level A, AA, or AAA requirements
 5. **Cite sources** — Reference UX design spec documents
+
+## How to Synthesize Results
+
+When the `spice_sql` tool returns results:
+
+1. **Parse the tool output** — Extract `path`, `content_preview`, and `fused_score` from each row
+2. **Focus on top 3-5 results** — Prioritize by `fused_score` (higher is better)
+3. **Extract UX guidance** — Identify design patterns, WCAG requirements, or usability principles
+4. **Apply WCAG context** — Map results to Level A, AA, or AAA success criteria
+5. **Cite sources** — Reference the `path` field for each pattern (e.g., "Per `UXDesignSpec/patterns/accessible-forms.md`...")
+6. **Combine with WCAG 2.1 standards** — Supplement with Perceivable, Operable, Understandable, Robust principles
+7. **Handle large responses** — If tool output is too large, focus on the top 3 results only
+
+**Example synthesis:**
+```
+Based on the ux_design_spec dataset and WCAG 2.1 Level AA requirements:
+
+1. **Form accessibility patterns** (UXDesignSpec/patterns/accessible-forms.md)
+   - All inputs must have associated `<label>` elements (WCAG 3.3.2)
+   - Use `aria-describedby` for error messages and field hints
+   - Maintain logical tab order for keyboard navigation
+
+2. **Color contrast requirements** (UXDesignSpec/accessibility/color-contrast.md)
+   - Normal text: 4.5:1 contrast ratio minimum
+   - Large text (18pt+): 3:1 contrast ratio minimum
+   - Use tools like WebAIM Contrast Checker for validation
+
+3. **Component library standards** (UXDesignSpec/tech-restrictions/recommended-libraries.md)
+   - Use Radix UI primitives for built-in accessibility
+   - Apply Tailwind CSS for styling
+   - All interactive components must support keyboard navigation
+```
 
 ## Organization Standards
 
@@ -73,21 +111,34 @@ See `UXDesignSpec/tech-restrictions/accessibility-requirements.md` for prohibite
 
 ## Fallback Guidance
 
-If `spice_sql` returns no results or errors:
+Handle different error scenarios:
 
-1. **Acknowledge the gap** — "The ux_design_spec dataset doesn't have specific guidance on this topic."
-2. **Apply WCAG 2.1 Level AA standards**:
-   - **Perceivable**: Text alternatives, captions, adaptable layouts, distinguishable content
-   - **Operable**: Keyboard accessible, enough time, seizure-safe, navigable
-   - **Understandable**: Readable, predictable, input assistance
-   - **Robust**: Compatible with assistive technologies
-3. **Provide general UX best practices**:
-   - **Clear hierarchy**: Visual weight guides attention
-   - **Consistent patterns**: Reuse familiar UI components
-   - **User feedback**: Immediate response to actions
-   - **Error prevention**: Validate input, confirm destructive actions
-   - **Mobile-first**: Design for smallest screens, scale up
-4. **Recommend next steps** — Update ux_design_spec or consult design team
+**1. No results found:**
+- Acknowledge: "The ux_design_spec dataset doesn't have specific guidance on this topic."
+- Apply WCAG 2.1 Level AA standards:
+  - **Perceivable**: Text alternatives, captions, adaptable layouts, distinguishable content
+  - **Operable**: Keyboard accessible, enough time, seizure-safe, navigable
+  - **Understandable**: Readable, predictable, input assistance
+  - **Robust**: Compatible with assistive technologies
+- Provide general UX best practices (clear hierarchy, consistent patterns, user feedback)
+- Recommend updating ux_design_spec or consulting design team
+
+**2. Results too large to process:**
+- Focus on top 3 results only
+- Acknowledge: "The ux_design_spec dataset has extensive guidance on this topic. Here are the most relevant patterns..."
+- Provide synthesis from the highest-scoring results
+- Map to WCAG 2.1 success criteria where applicable
+
+**3. Tool timeout or error:**
+- Acknowledge: "Unable to query the ux_design_spec dataset at this time."
+- Provide WCAG 2.1 Level AA baseline requirements
+- Fall back to industry-standard UX patterns (Nielsen Norman Group, W3C)
+- Recommend Radix UI + Tailwind CSS per organization standards
+
+**4. Malformed or unexpected response:**
+- Log the issue for investigation
+- Provide WCAG 2.1 Level AA guidance
+- Recommend manual consultation of the UXDesignSpec repository or design team
 
 ## WCAG 2.1 Level AA Key Requirements
 
