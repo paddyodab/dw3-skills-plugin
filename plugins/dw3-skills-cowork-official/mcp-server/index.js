@@ -6,6 +6,9 @@ import {
   CallToolRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
 import { spawn } from "child_process";
+import { writeFileSync } from "fs";
+import { tmpdir } from "os";
+import { join } from "path";
 
 const server = new Server(
   {
@@ -94,7 +97,50 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           ],
           isError: true,
         });
+        return;
+      }
+
+      // Check result size - if > 50KB, write to file instead of returning inline
+      const sizeKB = Buffer.byteLength(stdout, "utf8") / 1024;
+
+      if (sizeKB > 50) {
+        // Large result: write to temp file
+        const timestamp = Date.now();
+        const filename = `spice-results-${timestamp}.txt`;
+        const filepath = join(tmpdir(), filename);
+
+        try {
+          writeFileSync(filepath, stdout, "utf8");
+
+          // Count rows for summary (approximate: total lines - header/footer)
+          const lines = stdout.split("\n").filter((l) => l.trim());
+          const rowCount = Math.max(0, lines.length - 4); // Rough estimate
+
+          resolve({
+            content: [
+              {
+                type: "text",
+                text: `Query completed successfully.\n\nResults written to: ${filepath}\nEstimated rows: ${rowCount}\nSize: ${sizeKB.toFixed(
+                  1
+                )}KB\n\nUse the Read tool to access the full results.`,
+              },
+            ],
+          });
+        } catch (writeError) {
+          // Fallback: if file write fails, return inline anyway
+          resolve({
+            content: [
+              {
+                type: "text",
+                text: `Warning: Large result (${sizeKB.toFixed(
+                  1
+                )}KB) - file write failed: ${writeError.message}\n\n${stdout}`,
+              },
+            ],
+          });
+        }
       } else {
+        // Small result: return inline (backward compatible)
         resolve({
           content: [
             {

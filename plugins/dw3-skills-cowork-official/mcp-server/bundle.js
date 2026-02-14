@@ -20666,6 +20666,9 @@ var StdioServerTransport = class {
 
 // index.js
 import { spawn } from "child_process";
+import { writeFileSync } from "fs";
+import { tmpdir } from "os";
+import { join } from "path";
 var server = new Server(
   {
     name: "spice-sql-server",
@@ -20736,6 +20739,47 @@ ${stderr || stdout}`
           ],
           isError: true
         });
+        return;
+      }
+      const sizeKB = Buffer.byteLength(stdout, "utf8") / 1024;
+      if (sizeKB > 50) {
+        const timestamp = Date.now();
+        const filename = `spice-results-${timestamp}.txt`;
+        const filepath = join(tmpdir(), filename);
+        try {
+          writeFileSync(filepath, stdout, "utf8");
+          const lines = stdout.split("\n").filter((l) => l.trim());
+          const rowCount = Math.max(0, lines.length - 4);
+          resolve({
+            content: [
+              {
+                type: "text",
+                text: `Query completed successfully.
+
+Results written to: ${filepath}
+Estimated rows: ${rowCount}
+Size: ${sizeKB.toFixed(
+                  1
+                )}KB
+
+Use the Read tool to access the full results.`
+              }
+            ]
+          });
+        } catch (writeError) {
+          resolve({
+            content: [
+              {
+                type: "text",
+                text: `Warning: Large result (${sizeKB.toFixed(
+                  1
+                )}KB) - file write failed: ${writeError.message}
+
+${stdout}`
+              }
+            ]
+          });
+        }
       } else {
         resolve({
           content: [
