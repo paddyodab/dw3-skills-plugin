@@ -19,8 +19,17 @@
     {
       "name": "dw3-skills-cowork",
       "source": "./plugins/dw3-skills-cowork",
-      "description": "Domain expert skills for Cowork. Uses MCP server to bridge spice CLI from host into the Cowork VM. Requires Bun and SPICE_CLOUD_API_KEY set.",
+      "description": "Domain expert skills for Cowork (first attempt). Uses MCP server to bridge spice CLI from host into the Cowork VM. Requires Bun and SPICE_CLOUD_API_KEY set.",
       "version": "1.0.0",
+      "author": {
+        "name": "Dustin Warner"
+      }
+    },
+    {
+      "name": "dw3-skills-cowork-official",
+      "source": "./plugins/dw3-skills-cowork-official",
+      "description": "Domain expert skills for Cowork (official). Built with create-cowork-plugin skill using Node.js MCP server. Covers cloud architecture (AWS), security compliance (HIPAA/HITRUST/SOC2), QA standards, and UX design (WCAG). Requires Node.js, npm install in mcp-server/, and SPICE_CLOUD_API_KEY.",
+      "version": "0.1.0",
       "author": {
         "name": "Dustin Warner"
       }
